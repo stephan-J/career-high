@@ -1,0 +1,58 @@
+var nickNames = ['µ¶»ê°õµ¹ÀÌ', '¿ù°îµ¶¼ö¸®', '¿Í·æ¹Ú»ç', '88ÇØEH', 'ÀÇ¹®ÀÇÁ·¹ß', 'ÃÖ°­ÈÄ´ÏÈÆ', 'Ä«¿ä91', 'Danny95', '¿ÀÇ¬ÀÌÀÇºÐ³ë', 'À¯±¤ÁãÆ÷', 'Ä¡Å²ÀÇÇÔ¼º', 'Èä¸°','²Ãµ¥´Â¾ÈµÅ'];
+var coupons = '¹«¼èÆÈ';
+var count = -1;
+
+
+function redeem() {
+	var parameters = new Object();
+	parameters.gameServerId = 1;
+	
+	count++;
+	var curUser = nickNames[count];
+	
+	if(curUser){
+		
+		parameters.charName = curUser;
+		parameters.couponKey = coupons;
+		
+		var ajaxResult = $.ajax({type : "POST", dataType: "json", contentType: "application/json", url : "/shop/h2/kr/redeem", data: JSON.stringify(parameters), cache : false, async : false});
+		var result = ajaxResult.responseText;
+		
+		if(ajaxResult.status == 200){
+			var resultJson = $.parseJSON(result);
+			var resultMessage = resultJson.resultMessage;
+			
+			if (resultMessage == "SUCCESS") {
+				//alert(messages["JS.Coupon.Delivery.Message"]);
+				console.log('>>> ', curUser, ' ÄíÆù µî·Ï ¿Ï·á');
+			} else if (resultMessage == "MAXIMUM_REGISTRABLE_COUNT_ERROR") {
+				console.error(curUser,':' ,messages["JS.Coupon.Maximum.Registrable.Count.Message"]);
+			} else if (resultMessage == "INVALID_COUPON_ERROR") {
+				console.error(curUser,':' ,messages["JS.Coupon.Invalid.Coupon.Message"]);
+			} else if (resultMessage == "EXCEED_USER_REGISTRATION_LIMIT_ERROR") {
+				console.error(curUser,':' ,messages["JS.Coupon.Exceed.User.Registration.Limit.Message"]);	
+			} else if (resultMessage == "INVALID_EFFECTIVE_RANGE_ERROR") {
+				console.error(curUser,':' ,messages["JS.Coupon.Invalid.Effective.Range.Message"]);	
+			} else if (resultMessage == "EMPTY_GAME_SERVER_ID_ERROR") {
+				console.error(curUser,':' ,messages["h2.JS.Coupon.Empty.Server.Message"]);
+			} else if (resultMessage == "EMPTY_GAME_CHARACTER_NAME_ERROR") {
+				console.error(curUser,':' ,messages["h2.JS.Coupon.Empty.Nickname.Message"]);
+			} else if (resultMessage == "NO_GAME_CHARACTER"
+				|| resultMessage == "MOBILE_GAME_SERVER_CHECK_VALIDATOR_ERROR"
+				|| resultMessage == "MOBILE_GAME_CHARACTER_CHECK_VALIDATOR_ERROR") {
+				console.error(curUser,':' ,messages["h2.JS.Coupon.Error.Server.Character.Message"]);
+			} else {
+				console.error(curUser,':' ,messages["JS.Coupon.Error.System.Message"]);
+			}
+		}
+		else {
+			console.error(curUser,':' ,messages["JS.Coupon.Error.System.Message"]);
+		}
+		
+		redeem();
+	}
+	
+	return false;
+}
+
+redeem();
